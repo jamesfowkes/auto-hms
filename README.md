@@ -6,3 +6,5 @@ In the absence of an API to allow using the booking tool, this uses robobrowser 
 There's practically no error handling besides sort-of checking that the browser has found the right page.
 
 requirements.txt has the module requirements for pip, but doesn't include luck, which you'll probably need as well.
+
+You'll need to add your HMS username and password to your environment variables as LSPACE_USERNAME and LSPACE_PASSWORD.
