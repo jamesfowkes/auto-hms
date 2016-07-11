@@ -1,7 +1,7 @@
-""" lspace_laser.py
+""" auto_laser.py
 
 Usage:
-    lspace_laser.py <start_time> <end_time> [<date>]
+    auto_laser.py <start_time> <end_time> [<date>]
 
 Options:
     <start_time>    Booking start time in hhmm format
@@ -41,7 +41,7 @@ def try_login(br, user, pwd):
 
     br.submit_form(form)
 
-def logged_in_to_lspace(br, user):
+def logged_into_hms(br, user):
     login_div = br.select("div.login")
     
     return user in login_div[0].text
@@ -104,8 +104,14 @@ if __name__ == "__main__":
     booking_info = args_to_booking_info(args)
     booking_url = get_encoded_booking_url(booking_info)
     
-    username = os.getenv("LSPACE_USERNAME")
-    pwd = os.getenv("LSPACE_PASSWORD")
+    username = os.getenv("HMS_USERNAME")
+    pwd = os.getenv("HMS_PASSWORD")
+
+    if not username:
+        sys.exit("HMS_USERNAME environment variable not set!")
+
+    if not pwd:
+        sys.exit("HMS_PASSWORD environment variable not set!")
 
     logging.info("Booking laser on {0:%Y-%m-%d}, {0:%H:%M} to {1:%H:%M}".format(
         booking_info.start, booking_info.end))
@@ -116,8 +122,8 @@ if __name__ == "__main__":
     
     try_login(br, username, pwd)
 
-    if not logged_in_to_lspace(br, username):
-       sys.exit("Could not login to lspace")
+    if not logged_into_hms(br, username):
+       sys.exit("Could not login to hms")
 
     logging.info("Login success!")
     logging.info("Navigating to laser booking url '{}'".format(urllib.parse.unquote(booking_url)))
