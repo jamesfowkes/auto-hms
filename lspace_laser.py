@@ -28,7 +28,7 @@ BookingInfo = namedtuple("BookingInfo", ["start", "end"])
 HMS_ROOT = "https://lspace.nottinghack.org.uk/hms"
 
 def get_browser(url):
-    br = RoboBrowser()
+    br = RoboBrowser(parser="html.parser")
     br.open(url)
 
     return br
@@ -93,7 +93,6 @@ def try_booking(br, booking_info):
 
 def booking_succeesful(br):
     flash = br.select("#flashMessage")
-    print(flash[0].text)
     return "Booking Added" in flash[0].text, flash[0].text
 
 if __name__ == "__main__":
