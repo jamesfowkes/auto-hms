@@ -1,9 +1,11 @@
 """ auto_label.py
 
 Usage:
-    auto_label.py <project_name>
+    auto_label.py [--create|--print] <project_name> [<description>]
 
 Options:
+    --create        Create the specified project
+    --print         Print a label for the specified project (description must be specified)
     <project_name>  Name of the project to print label for
 
 """
@@ -33,7 +35,7 @@ def try_login(br, user, pwd):
 
     br.submit_form(form)
 
-def logged_in_to_lspace(br, user):
+def logged_into_hms(br, user):
     login_div = br.select("div.login")
     
     return user in login_div[0].text
@@ -59,14 +61,34 @@ def try_print_label(br, name):
             if cell.text == name:
                 print_from_cells(br, cells)
 
+def try_create_project(br, name, description):
+
+    br.open(HMS_ROOT + "/memberProjects/add")
+
+    form = br.get_form(id="MemberProjectAddForm")
+
+    form["data[MemberProject][project_name]"].value = name
+    form["data[MemberProject][description]"].value = description
+
+    br.submit_form(form)
+
 if __name__ == "__main__":
 
     args = docopt.docopt(__doc__)
 
+    if args["--create"] and args["<description>"] is None:
+        sys.exit("Description must be provided if creating project")
+
     logging.basicConfig(level=logging.INFO)
 
-    username = os.getenv("LSPACE_USERNAME")
-    pwd = os.getenv("LSPACE_PASSWORD")
+    username = os.getenv("HMS_USERNAME")
+    pwd = os.getenv("HMS_PASSWORD")
+
+    if not username:
+        sys.exit("HMS_USERNAME environment variable not set!")
+
+    if not pwd:
+        sys.exit("HMS_PASSWORD environment variable not set!")
 
     br = get_browser(HMS_ROOT + "/members/login")
 
@@ -74,9 +96,11 @@ if __name__ == "__main__":
     
     try_login(br, username, pwd)
 
+    if not logged_into_hms(br, username):
+       sys.exit("Could not login to hms")
 
-    if not logged_in_to_lspace(br, username):
-       sys.exit("Could not login to lspace")
-
-    try_print_label(br, args["<project_name>"])
+    if args["--create"]:
+        try_create_project(br, args["<project_name>"], args["<description>"])
+    elif args["--print"]:
+        try_print_label(br, args["<project_name>"])
 
