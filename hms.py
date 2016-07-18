@@ -2,6 +2,7 @@ import datetime
 
 from robobrowser import RoboBrowser
 
+import booking
 from project import Project
 
 HMS_ROOT = "https://lspace.nottinghack.org.uk/hms"
@@ -71,7 +72,7 @@ class HMS:
         self.ensure_url(HMS_ROOT + href)
         
     def open_tools_booking_form(self, booking_info, tool):
-        booking_url = booking_info.get_encoded_booking_url(tool)
+        booking_url = booking_info.get_encoded_booking_url(HMS_ROOT, tool)
         self.ensure_url(booking_url)
 
     def on_laser_booking_form(self):
@@ -89,3 +90,11 @@ class HMS:
     def booking_successful(self):
         flash = self.br.select("#flashMessage")
         return "Booking Added" in flash[0].text, flash[0].text
+
+    def get_calendar(self, tool):
+        url = booking.get_calendar_url(HMS_ROOT, tool)
+        self.ensure_url(url)
+
+        booking_divs = self.br.select("div.event")
+
+        return booking_divs

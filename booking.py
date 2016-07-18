@@ -6,8 +6,6 @@ from pytz import timezone
 
 from collections import namedtuple
 
-from hms import HMS_ROOT
-
 TOOLS = {
     'laser': 1
 }
@@ -41,12 +39,59 @@ class BookingInfo(namedtuple("BookingInfo", ["start", "end"])):
 
         return cls(start_dt, end_dt)
 
-    def get_encoded_booking_url(self, tool):
+    @classmethod
+    def from_datetimes(cls, date, start, end):
+        start_dt = datetime.datetime.combine(date, start)
+        end_dt = datetime.datetime.combine(date, end)
+        return cls(start_dt, end_dt)
+
+    def get_encoded_booking_url(self, root, tool):
         tool_number = TOOLS[tool.lower()]
         encoded_time = urllib.parse.quote(self.format_booking_time())
-        return HMS_ROOT + "/tools/addbooking/{}?t={}".format(tool_number, encoded_time)
+        return root + "/tools/addbooking/{}?t={}".format(tool_number, encoded_time)
 
     def format_booking_time(self):
 
         offset = timezone("Europe/London").utcoffset(self.start)
         return "{0:%Y-%m-%d}T{0:%H}:{0:%M}:00+{1:02d}:00".format(self.start, int(offset.seconds/3600))
+
+def get_calendar_url(root, tool):
+    tool_number = TOOLS[tool.lower()]
+    return root + "/tools/view/{}".format(tool_number)
+
+def get_day_of_week(booking_div):
+    class_attrs = booking_div["class"]
+    day =  next(c for c in class_attrs if c.startswith("day_"))
+    return int(day[-1]) - 1
+
+def get_start_time(booking_div):
+    class_attrs = booking_div["class"]
+    start =  next(c for c in class_attrs if c.startswith("start_"))
+    hour = int(start[6:8])
+    minute = int(start[8:10])
+    return datetime.time(hour, minute)
+
+def get_end_time(booking_div):
+    class_attrs = booking_div["class"]
+    duration = next(c for c in class_attrs if c.startswith("len_"))
+    duration = int(duration[4:])
+    start_time = get_start_time(booking_div)
+    dummy_date = datetime.datetime.combine(datetime.date.today(), start_time)
+
+    return (dummy_date + datetime.timedelta(minutes=duration)).time()
+
+def get_booking_date_from_div(div):
+    date_start_of_week = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
+    booking_day_of_week = get_day_of_week(div)
+    booking_date = date_start_of_week + datetime.timedelta(days=booking_day_of_week)
+    return booking_date
+
+def div_to_booking(div):
+    booking_date = get_booking_date_from_div(div)
+    start_time = get_start_time(div)
+    end_time = get_end_time(div)
+
+    return BookingInfo.from_datetimes(booking_date, start_time, end_time)
+
+def convert_divs_to_bookings(divs):
+    return [div_to_booking(div) for div in divs]
