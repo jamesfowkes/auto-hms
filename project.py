@@ -14,6 +14,10 @@ class Project(namedtuple("Project", ["name", "desc", "start", "complete", "state
         hrefs = [link["href"] for link in cell.select("a")]
         links = {}
         for href in hrefs:
+
+            if href.startswith("/hms"):
+                href = href[4:]
+                
             if "view" in href:
                 links["view"] = href
             elif "resume" in href:

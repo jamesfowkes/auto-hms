@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     args = docopt.docopt(__doc__)
 
+    print(args)
     if args["--create"] and args["<description>"] is None:
         sys.exit("Description must be provided if creating project")
 
@@ -65,8 +66,11 @@ if __name__ == "__main__":
         hms.create_project(args["<project_name>"], args["<description>"])
 
     elif args["--print"]:
-        hms.print_project_label(br, args["<project_name>"])
-    
+        result = hms.print_project_label(args["<project_name>"])
+        
+        if result:
+            logging.error(result)
+
     elif args["--list"]:
         print_detail = args["--detail"]
 

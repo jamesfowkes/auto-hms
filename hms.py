@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from robobrowser import RoboBrowser
 
@@ -45,11 +46,23 @@ class HMS:
             if project.name == name:
                 return project
 
-    def print_project_label(self, cells):
+    def print_project_label(self, name):
 
+        result = None
         found_project = self.find_project(name)
-        if found_project and found_project.can_print_label():
-            self.br.open(HMS_ROOT + project.links["printDNHLabel"])
+        if found_project:
+            if found_project.can_print_label():
+                url = HMS_ROOT + found_project.links["printDNHLabel"]
+                logging.info("Printing label for '{}'".format(name))
+                logging.info("URL: {}".format(url))
+                
+                self.br.open(url)
+            else:
+                result = "Print link not found for project '{}'".format(name)
+        else:
+            result = "Project '{}' not found.".format(name)
+
+        return result
 
     def open_add_project(self):
         self.ensure_url(HMS_ROOT + "/memberProjects/add")
