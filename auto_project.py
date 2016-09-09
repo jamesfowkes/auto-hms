@@ -35,7 +35,6 @@ if __name__ == "__main__":
 
     args = docopt.docopt(__doc__)
 
-    print(args)
     if args["--create"] and args["<description>"] is None:
         sys.exit("Description must be provided if creating project")
 
