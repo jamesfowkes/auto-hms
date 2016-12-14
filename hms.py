@@ -6,7 +6,7 @@ from robobrowser import RoboBrowser
 import booking
 from project import Project
 
-HMS_ROOT = "https://lspace.nottinghack.org.uk/hms"
+HMS_ROOT = "https://hms.nottinghack.org.uk"
 
 class HMS:
     
