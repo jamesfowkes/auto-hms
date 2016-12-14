@@ -43,6 +43,8 @@ class BookingInfo(namedtuple("BookingInfo", ["start", "end"])):
     def from_datetimes(cls, date, start, end):
         start_dt = datetime.datetime.combine(date, start)
         end_dt = datetime.datetime.combine(date, end)
+        if end_dt < start_dt:
+            end_dt += datetime.timedelta(days=1)
         return cls(start_dt, end_dt)
 
     def get_encoded_booking_url(self, root, tool):
