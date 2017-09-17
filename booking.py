@@ -10,7 +10,7 @@ TOOLS = {
     'laser': 1
 }
 
-class BookingInfo(namedtuple("BookingInfo", ["start", "end"])):
+class BookingInfo(namedtuple("BookingInfo", ["start", "end", "name"])):
 
     __slots__ = ()
 
@@ -40,12 +40,12 @@ class BookingInfo(namedtuple("BookingInfo", ["start", "end"])):
         return cls(start_dt, end_dt)
 
     @classmethod
-    def from_datetimes(cls, date, start, end):
+    def from_datetimes(cls, date, start, end, name):
         start_dt = datetime.datetime.combine(date, start)
         end_dt = datetime.datetime.combine(date, end)
         if end_dt < start_dt:
             end_dt += datetime.timedelta(days=1)
-        return cls(start_dt, end_dt)
+        return cls(start_dt, end_dt, name)
 
     def get_encoded_booking_url(self, root, tool):
         tool_number = TOOLS[tool.lower()]
@@ -88,12 +88,16 @@ def get_booking_date_from_div(div):
     booking_date = date_start_of_week + datetime.timedelta(days=booking_day_of_week)
     return booking_date
 
+def get_name(div):
+    return div.text
+
 def div_to_booking(div):
     booking_date = get_booking_date_from_div(div)
     start_time = get_start_time(div)
     end_time = get_end_time(div)
+    name = get_name(div)
 
-    return BookingInfo.from_datetimes(booking_date, start_time, end_time)
+    return BookingInfo.from_datetimes(booking_date, start_time, end_time, name)
 
 def convert_divs_to_bookings(divs):
     return [div_to_booking(div) for div in divs]

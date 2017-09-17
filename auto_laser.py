@@ -77,7 +77,7 @@ if __name__ == "__main__":
         bookings = filter(filter_bookings_for_rest_of_day, bookings)
         
         for b in bookings:
-            print("{0:%H:%M} to {1:%H:%M}".format(b.start, b.end))
+            print("{:%H:%M} to {:%H:%M} ({})".format(b.start, b.end, b.name))
 
     else:
         booking_info = booking.BookingInfo.from_args(args)
